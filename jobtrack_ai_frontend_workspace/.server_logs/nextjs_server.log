@@ -2,9 +2,13 @@
 > nextjs@0.1.0 dev
 > next dev -p 3000 -H 0.0.0.0
 
-   ▲ Next.js 15.2.3
-   - Local:        http://localhost:3000
-   - Network:      http://0.0.0.0:3000
-
- ✓ Starting...
- ✓ Ready in 1533ms
+ ⨯ Failed to start server
+Error: listen EADDRINUSE: address already in use 0.0.0.0:3000
+    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {
+  code: 'EADDRINUSE',
+  errno: -98,
+  syscall: 'listen',
+  address: '0.0.0.0',
+  port: 3000
+}
+[?25h

@@ -1,4 +1,4 @@
-/**
+ /**
  * API Utility for backend integration
  * 
  * Contains functions for interacting with the backend API.
@@ -52,9 +52,57 @@ export const matchResume = async ({
       detail = res.statusText;
     }
     throw new Error(
-      `Failed to get match suggestions (${
-        res.status
-      }): ${detail || "Unknown error."}`
+      `Failed to get match suggestions (${res.status}): ${detail || "Unknown error."}`
+    );
+  }
+  return res.json();
+};
+
+/**
+ * PUBLIC_INTERFACE
+ * Submits cover letter generation request to backend /cover-letter endpoint.
+ * Accepts job role, job description, resume (file or text), and tone.
+ * @param params { jobRole: string, jobDescription: string, resumeFile?: File | null, resumeText?: string, tone: string }
+ * @returns Promise<{ cover_letter: string }>
+ */
+export const generateCoverLetter = async ({
+  jobRole,
+  jobDescription,
+  resumeFile,
+  resumeText,
+  tone,
+}: {
+  jobRole: string;
+  jobDescription: string;
+  resumeFile?: File | null;
+  resumeText?: string;
+  tone: string;
+}): Promise<{ cover_letter: string }> => {
+  const formData = new FormData();
+  formData.append("job_role", jobRole);
+  formData.append("job_description", jobDescription);
+  formData.append("tone", tone);
+  if (resumeFile) {
+    formData.append("resume", resumeFile);
+  } else if (resumeText) {
+    formData.append("resume_text", resumeText);
+  }
+
+  const res = await fetch(`${BACKEND_API_BASE}/cover-letter`, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!res.ok) {
+    let detail = "";
+    try {
+      const err = await res.json();
+      detail = err?.detail || "";
+    } catch {
+      detail = res.statusText;
+    }
+    throw new Error(
+      `Failed to generate cover letter (${res.status}): ${detail || "Unknown error."}`
     );
   }
   return res.json();
