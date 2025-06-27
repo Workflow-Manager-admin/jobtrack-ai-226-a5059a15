@@ -1,0 +1,1 @@
+{"is_source_file": true, "file_id": 52, "git_revision": "", "state": 1, "description": "", "external_files": [], "external_methods": [], "published": [], "classes": [], "methods": [], "calls": [], "search-terms": [], "hash": "18532064fffae49d45cae20ba1365159", "format-version": 4, "code-base-name": "default", "filename": "assets/supabase.md", "knowledge_revision": 137}
