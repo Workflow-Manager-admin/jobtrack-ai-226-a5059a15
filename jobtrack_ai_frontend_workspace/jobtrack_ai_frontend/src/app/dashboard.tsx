@@ -1,24 +1,22 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import {
+  fetchApplications,
+  createApplication,
+  updateApplication,
+  deleteApplication,
+  JobApplication,
+  JobApplicationCreatePayload,
+  JobStatus,
+} from "../utils/api";
 
 /**
  * Tracker Dashboard Page
  * Displays a job application Kanban board (with Table toggle), allows adding/updating jobs.
- * Uses mock data initially.
+ * Uses live backend data, no mocks.
  */
 
-type JobStatus = "Saved" | "Applied" | "Interview" | "Offer" | "Rejected";
-interface JobApplication {
-  id: number;
-  status: JobStatus;
-  company: string;
-  role: string;
-  notes: string;
-  appliedDate?: string;
-}
-
-// Kanban pipeline stages
 const STATUS_OPTIONS: JobStatus[] = ["Saved", "Applied", "Interview", "Offer", "Rejected"];
 const STATUS_COLORS: Record<JobStatus, string> = {
   Saved: "bg-gray-100 border-gray-300",
@@ -28,49 +26,69 @@ const STATUS_COLORS: Record<JobStatus, string> = {
   Rejected: "bg-red-100 border-red-400",
 };
 
-const MOCK_APPLICATIONS: JobApplication[] = [
-  { id: 1, status: "Applied", company: "Google", role: "Software Engineer", notes: "Online assessment completed.", appliedDate: "2024-06-01" },
-  { id: 2, status: "Interview", company: "Amazon", role: "Frontend Developer", notes: "Technical interview upcoming.", appliedDate: "2024-05-25" },
-  { id: 3, status: "Saved", company: "Stripe", role: "Product Designer", notes: "Job saved for later. Research team.", appliedDate: "" },
-  { id: 4, status: "Offer", company: "Meta", role: "Backend Engineer", notes: "Received offer, weighing options.", appliedDate: "2024-04-18" },
-  { id: 5, status: "Rejected", company: "Netflix", role: "React Developer", notes: "Ghosted after phone screen.", appliedDate: "2024-05-12" },
-];
-
 const DashboardPage: React.FC = () => {
-  const [applications, setApplications] = useState<JobApplication[]>(MOCK_APPLICATIONS);
+  const [applications, setApplications] = useState<JobApplication[]>([]);
   const [viewType, setViewType] = useState<"kanban" | "table">("kanban");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
   const [editApplication, setEditApplication] = useState<JobApplication | null>(null);
 
   // Form state for adding/editing job
-  const [formData, setFormData] = useState<JobApplication>({
-    id: -1,
+  const [formData, setFormData] = useState<JobApplicationCreatePayload>({
     status: "Saved",
     company: "",
     role: "",
     notes: "",
     appliedDate: "",
   });
+  // Loading and error state
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch backend data on mount
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await fetchApplications();
+        setApplications(data);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Failed to fetch applications");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   // Modal open/close helpers
   const openAddModal = () => {
     setModalMode("add");
-    setFormData({ id: -1, status: "Saved", company: "", role: "", notes: "", appliedDate: "" });
+    setFormData({ status: "Saved", company: "", role: "", notes: "", appliedDate: "" });
     setIsModalOpen(true);
     setEditApplication(null);
+    setError(null);
   };
 
   const openEditModal = (app: JobApplication) => {
     setModalMode("edit");
     setEditApplication(app);
-    setFormData(app);
+    setFormData({
+      status: app.status,
+      company: app.company,
+      role: app.role,
+      notes: app.notes,
+      appliedDate: app.appliedDate || "",
+    });
     setIsModalOpen(true);
+    setError(null);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setEditApplication(null);
+    setError(null);
   };
 
   // Form handlers
@@ -79,31 +97,61 @@ const DashboardPage: React.FC = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Add or update job
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  // Add or update job (calls backend)
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (modalMode === "add") {
-      // Assign a new id (mock auto-increment)
-      const newId = Math.max(...applications.map(a => a.id), 0) + 1;
-      setApplications([
-        ...applications,
-        { ...formData, id: newId, appliedDate: formData.appliedDate || undefined },
-      ]);
-    } else if (modalMode === "edit" && editApplication) {
-      setApplications(applications.map((a) => (a.id === editApplication.id ? { ...formData, id: editApplication.id } : a)));
+    setLoading(true);
+    setError(null);
+    try {
+      if (modalMode === "add") {
+        const created = await createApplication(formData);
+        setApplications((prev) => [...prev, created]);
+      } else if (modalMode === "edit" && editApplication) {
+        const updated = await updateApplication(editApplication.id, formData);
+        setApplications((prev) =>
+          prev.map((a) => (a.id === editApplication.id ? updated : a))
+        );
+      }
+      closeModal();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to save application");
+    } finally {
+      setLoading(false);
     }
-    closeModal();
   };
 
-  // Move to another status (kanban drag simulation)
-  const moveAppStatus = (app: JobApplication, status: JobStatus) => {
-    setApplications((prev) =>
-      prev.map((a) =>
-        a.id === app.id
-          ? { ...a, status }
-          : a
-      )
-    );
+  // Move to another status (calls update on backend)
+  const moveAppStatus = async (app: JobApplication, status: JobStatus) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const updated = await updateApplication(app.id, {
+        ...app,
+        status,
+        // Remove id from payload (API expects only updatable fields)
+      });
+      setApplications((prev) => prev.map((a) => (a.id === app.id ? updated : a)));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to update status");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Delete a job application
+  const handleDeleteApp = async (app: JobApplication) => {
+    if (!window.confirm("Are you sure you want to delete this application?")) return;
+    setLoading(true);
+    setError(null);
+    try {
+      await deleteApplication(app.id);
+      setApplications((prev) => prev.filter((a) => a.id !== app.id));
+      closeModal();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to delete application");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Renderers
@@ -113,7 +161,9 @@ const DashboardPage: React.FC = () => {
         <div key={status} className={`min-w-[240px] flex-1 rounded border ${STATUS_COLORS[status]} p-3 shadow-sm`}>
           <div className="flex justify-between items-center mb-2">
             <span className="font-bold text-md">{status}</span>
-            <span className="rounded-full bg-gray-200 text-xs px-2 py-1 ml-2">{applications.filter(a => a.status === status).length}</span>
+            <span className="rounded-full bg-gray-200 text-xs px-2 py-1 ml-2">
+              {applications.filter((a) => a.status === status).length}
+            </span>
           </div>
           <div className="space-y-3">
             {applications.filter((a) => a.status === status).map((app) => (
@@ -134,9 +184,12 @@ const DashboardPage: React.FC = () => {
                   className="mt-2 w-full border rounded px-2 py-1 text-xs bg-gray-100 hover:bg-blue-100"
                   value={app.status}
                   onChange={(e) => moveAppStatus(app, e.target.value as JobStatus)}
+                  disabled={loading}
                 >
-                  {STATUS_OPTIONS.map(opt => (
-                    <option value={opt} key={opt}>{opt}</option>
+                  {STATUS_OPTIONS.map((opt) => (
+                    <option value={opt} key={opt}>
+                      {opt}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -171,14 +224,35 @@ const DashboardPage: React.FC = () => {
         </thead>
         <tbody>
           {applications.map((app) => (
-            <tr key={app.id} className="border-b cursor-pointer hover:bg-blue-50" onClick={() => openEditModal(app)}>
+            <tr
+              key={app.id}
+              className="border-b cursor-pointer hover:bg-blue-50"
+              onClick={() => openEditModal(app)}
+            >
               <td className="py-2 px-3">{app.status}</td>
               <td className="py-2 px-3">{app.company}</td>
               <td className="py-2 px-3">{app.role}</td>
               <td className="py-2 px-3 truncate max-w-xs">{app.notes}</td>
               <td className="py-2 px-3">{app.appliedDate || ""}</td>
               <td className="py-2 px-3">
-                <button className="text-blue-700 hover:underline" onClick={e => { e.stopPropagation(); openEditModal(app); }}>Edit</button>
+                <button
+                  className="text-blue-700 hover:underline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openEditModal(app);
+                  }}
+                >
+                  Edit
+                </button>
+                <button
+                  className="ml-3 text-red-700 hover:underline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteApp(app);
+                  }}
+                >
+                  Delete
+                </button>
               </td>
             </tr>
           ))}
@@ -187,7 +261,8 @@ const DashboardPage: React.FC = () => {
               <button
                 className="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
                 onClick={openAddModal}
-              >+ Add Job
+              >
+                + Add Job
               </button>
             </td>
           </tr>
@@ -200,7 +275,9 @@ const DashboardPage: React.FC = () => {
   const renderModal = () => (
     <div className="fixed inset-0 z-20 bg-black bg-opacity-20 flex items-center justify-center">
       <div className="bg-white border rounded shadow-lg p-6 min-w-[340px] max-w-[95vw] relative">
-        <h2 className="text-lg font-bold mb-3">{modalMode === "add" ? "Add New Job Application" : "Edit Job Application"}</h2>
+        <h2 className="text-lg font-bold mb-3">
+          {modalMode === "add" ? "Add New Job Application" : "Edit Job Application"}
+        </h2>
         <form className="flex flex-col gap-3" onSubmit={handleFormSubmit}>
           <label>
             <span className="text-sm">Status:</span>
@@ -210,9 +287,12 @@ const DashboardPage: React.FC = () => {
               value={formData.status}
               onChange={handleFormChange}
               required
+              disabled={loading}
             >
-              {STATUS_OPTIONS.map(opt => (
-                <option value={opt} key={opt}>{opt}</option>
+              {STATUS_OPTIONS.map((opt) => (
+                <option value={opt} key={opt}>
+                  {opt}
+                </option>
               ))}
             </select>
           </label>
@@ -226,6 +306,7 @@ const DashboardPage: React.FC = () => {
               onChange={handleFormChange}
               placeholder="Company Name"
               required
+              disabled={loading}
             />
           </label>
           <label>
@@ -238,6 +319,7 @@ const DashboardPage: React.FC = () => {
               onChange={handleFormChange}
               placeholder="Job Title"
               required
+              disabled={loading}
             />
           </label>
           <label>
@@ -249,6 +331,7 @@ const DashboardPage: React.FC = () => {
               onChange={handleFormChange}
               rows={3}
               placeholder="Notes, reminders, or comments"
+              disabled={loading}
             />
           </label>
           <label>
@@ -259,23 +342,41 @@ const DashboardPage: React.FC = () => {
               className="w-full border mt-1 p-2 rounded"
               value={formData.appliedDate || ""}
               onChange={handleFormChange}
+              disabled={loading}
             />
           </label>
-          <div className="mt-2 flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={closeModal}
-              className="bg-gray-100 border border-gray-400 px-3 py-1 rounded hover:bg-gray-200"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
-            >
-              {modalMode === "add" ? "Add" : "Save"}
-            </button>
+          <div className="mt-2 flex justify-between gap-2">
+            {modalMode === "edit" && (
+              <button
+                type="button"
+                onClick={() => handleDeleteApp(editApplication as JobApplication)}
+                className="bg-red-100 border border-red-400 px-3 py-1 rounded hover:bg-red-200 text-red-700"
+                disabled={loading}
+              >
+                Delete
+              </button>
+            )}
+            <div className="flex gap-2 ml-auto">
+              <button
+                type="button"
+                onClick={closeModal}
+                className="bg-gray-100 border border-gray-400 px-3 py-1 rounded hover:bg-gray-200"
+                disabled={loading}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
+                disabled={loading}
+              >
+                {modalMode === "add" ? "Add" : "Save"}
+              </button>
+            </div>
           </div>
+          {error && (
+            <div className="text-red-700 text-sm mt-2">{error}</div>
+          )}
         </form>
       </div>
     </div>
@@ -289,20 +390,29 @@ const DashboardPage: React.FC = () => {
           <button
             className={`px-3 py-1 rounded border ${viewType === "kanban" ? "bg-blue-600 text-white" : "bg-white border-blue-600 text-blue-700"}`}
             onClick={() => setViewType("kanban")}
-          >Kanban</button>
+            disabled={loading}
+          >
+            Kanban
+          </button>
           <button
             className={`px-3 py-1 rounded border ${viewType === "table" ? "bg-blue-600 text-white" : "bg-white border-blue-600 text-blue-700"}`}
             onClick={() => setViewType("table")}
-          >Table</button>
+            disabled={loading}
+          >
+            Table
+          </button>
         </div>
       </div>
-      <div>
-        {viewType === "kanban" ? renderKanbanBoard() : renderTableView()}
-      </div>
+      {loading ? (
+        <div className="w-full text-center py-12 text-blue-700">Loading...</div>
+      ) : (
+        <div>{viewType === "kanban" ? renderKanbanBoard() : renderTableView()}</div>
+      )}
       {isModalOpen && renderModal()}
       <div className="mt-10 text-sm text-gray-500">
         <p>
-          <span className="font-semibold">Note:</span> This dashboard is using mock data. All actions are local and not saved to a backend. Backend integration will enable live data persistence.
+          <span className="font-semibold">Note:</span>{" "}
+          This dashboard displays live data powered by the JobTrack AI backend API.
         </p>
       </div>
     </div>
