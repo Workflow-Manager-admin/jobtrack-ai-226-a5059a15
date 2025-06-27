@@ -1,0 +1,4 @@
+{
+    "command": "source venv/bin/activate && pip install -r requirements.txt",
+    "working_directory": "/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_backend_workspace/jobtrack_ai_backend"
+}
