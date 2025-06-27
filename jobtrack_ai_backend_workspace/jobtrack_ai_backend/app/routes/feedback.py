@@ -8,7 +8,12 @@ Integrate with Kavai AI for future smart analysis.
 from flask_smorest import Blueprint
 from flask.views import MethodView
 
-blp = Blueprint("Feedback", "feedback", url_prefix="/feedback", description="Feedback and analysis endpoints")
+blp = Blueprint(
+    "Feedback",
+    "feedback",
+    url_prefix="/feedback",
+    description="Feedback and analysis endpoints",
+)
 
 
 @blp.route("/")

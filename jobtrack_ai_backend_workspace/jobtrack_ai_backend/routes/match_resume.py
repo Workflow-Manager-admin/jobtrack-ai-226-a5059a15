@@ -1,8 +1,8 @@
-import os
 from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
 
 match_resume_bp = Blueprint("match_resume", __name__)
+
 
 # PUBLIC_INTERFACE
 @match_resume_bp.route("/match-resume", methods=["POST"])
@@ -51,30 +51,3 @@ def match_resume():
 
     # Provide a mocked but realistic API structure
     return jsonify({"suggestions": suggestions}), 200
-
->>>>>>> REPLACE
-
-Explanation: Register the new /match-resume route with the Flask app (if not already auto-discovered).
-````edit file="jobtrack_ai_backend_workspace/jobtrack_ai_backend/app.py"
-<<<<<<< SEARCH
-=======
-# PUBLIC_INTERFACE
-from flask import Flask
-
-def create_app():
-    """Create and configure the Flask application."""
-    app = Flask(__name__)
-
-    # Import and register the match_resume route blueprint
-    from routes.match_resume import match_resume_bp
-    app.register_blueprint(match_resume_bp)
-
-    # Add additional blueprints/routes as needed
-
-    return app
-
-if __name__ == "__main__":
-    app = create_app()
-    app.run(debug=True, host="0.0.0.0", port=3001)
-
->>>>>>> REPLACE

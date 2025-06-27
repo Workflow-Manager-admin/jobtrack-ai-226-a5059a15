@@ -1,8 +1,8 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
-import os
 
 cover_letter_bp = Blueprint('cover_letter', __name__)
+
 
 # PUBLIC_INTERFACE
 @cover_letter_bp.route('/cover-letter', methods=['POST'])
@@ -71,28 +71,26 @@ def generate_cover_letter():
     if resume_text:
         resume_content = resume_text[:500]
     elif resume_file:
-        filename = secure_filename(resume_file.filename)
         # Read file content, in a real impl would parse/extract from PDF/DOCX
         resume_content = resume_file.read(1024).decode(errors="ignore")[:500]
     else:
         resume_content = ""
 
-    # Mock AI output
-    cover_letter = f"""Dear Hiring Manager,
-
-I am writing to express my strong interest in the position of {job_role}. My background and qualifications, as outlined in my resume, closely align with the requirements described for this role.
-
-({ "Tone: " + tone.capitalize() }) 
-
-Job Description Snapshot:
-{job_description[:300]}...
-
-Resume Highlights:
-{resume_content if resume_content else "[Resume provided as file]"}...
-
-Thank you for considering my application. I am excited about the opportunity to contribute and look forward to discussing my fit for this role.
-
-Sincerely,
-[Your Name]"""
+    # Mock AI output (kept under 100 chars/line where possible)
+    cover_letter = (
+        f"Dear Hiring Manager,\n\n"
+        f"I am writing to express my strong interest in the position of {job_role}. "
+        f"My background and qualifications, as outlined in my resume, closely align "
+        f"with the requirements described for this role.\n\n"
+        f"(Tone: {tone.capitalize()}) \n\n"
+        f"Job Description Snapshot:\n"
+        f"{job_description[:100]}{'...' if len(job_description) > 100 else ''}\n\n"
+        f"Resume Highlights:\n"
+        f"{resume_content if resume_content else '[Resume provided as file]'}"
+        f"{'...' if resume_content else ''}\n\n"
+        f"Thank you for considering my application. I am excited about the opportunity to "
+        f"contribute and look forward to discussing my fit for this role.\n\n"
+        f"Sincerely,\n[Your Name]"
+    )
 
     return jsonify({"cover_letter": cover_letter})
