@@ -3,11 +3,6 @@
  * Extend or modify these as necessary for your project.
  */
 
-/**
- * Utility functions for API requests in JobTrack AI Frontend.
- * Extend or modify these as necessary for your project.
- */
-
 // Example: POST request with JSON body & error handling
 export async function postJson<T = unknown>(url: string, data: unknown, options?: RequestInit): Promise<T> {
   const response = await fetch(url, {
@@ -40,6 +35,126 @@ export async function getJson<T = unknown>(url: string, options?: RequestInit): 
 }
 
 /**
+ * Type definitions for job applications and utils
+ */
+export type JobStatus = "Saved" | "Applied" | "Interview" | "Offer" | "Rejected";
+
+export interface JobApplication {
+  id: string;
+  status: JobStatus;
+  company: string;
+  role: string;
+  notes: string;
+  appliedDate?: string;
+}
+
+export interface JobApplicationCreatePayload {
+  status: JobStatus;
+  company: string;
+  role: string;
+  notes: string;
+  appliedDate?: string;
+}
+
+/**
+ * Fetches all job applications from the backend API.
+ * @returns Promise resolving to an array of application objects.
+ */
+// PUBLIC_INTERFACE
+export async function fetchApplications(): Promise<JobApplication[]> {
+  const response = await fetch("/api/applications");
+  if (!response.ok) throw new Error("Failed to fetch applications");
+  return response.json();
+}
+
+/**
+ * Creates a new job application via backend API.
+ * @param application The application object to create.
+ * @returns Promise resolving to created application object.
+ */
+// PUBLIC_INTERFACE
+export async function createApplication(application: JobApplicationCreatePayload): Promise<JobApplication> {
+  const response = await fetch("/api/applications", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(application),
+  });
+  if (!response.ok) throw new Error("Failed to create application");
+  return response.json();
+}
+
+/**
+ * Updates an existing job application via backend API.
+ * @param id Application ID.
+ * @param updates Update fields as an object.
+ * @returns Promise resolving to the updated application object.
+ */
+// PUBLIC_INTERFACE
+export async function updateApplication(
+  id: string,
+  updates: Partial<JobApplicationCreatePayload>
+): Promise<JobApplication> {
+  const response = await fetch(`/api/applications/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(updates),
+  });
+  if (!response.ok) throw new Error("Failed to update application");
+  return response.json();
+}
+
+/**
+ * Deletes a job application via backend API.
+ * @param id Application ID.
+ * @returns Promise resolving to deletion confirmation.
+ */
+// PUBLIC_INTERFACE
+export async function deleteApplication(id: string): Promise<{ success: boolean }> {
+  const response = await fetch(`/api/applications/${id}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) throw new Error("Failed to delete application");
+  return response.json();
+}
+
+/**
+ * Calls backend to match a resume and job description, returning tailored suggestions.
+ * @param params { resumeFile, jobDescription }
+ * @returns Promise resolving to { suggestions: string[] }
+ */
+// PUBLIC_INTERFACE
+export async function matchResume({
+  resumeFile,
+  jobDescription,
+}: {
+  resumeFile: File;
+  jobDescription: string;
+}): Promise<{ suggestions: string[] }> {
+  // Construct FormData for file upload
+  const formData = new FormData();
+  formData.append("resume", resumeFile);
+  formData.append("job_description", jobDescription);
+
+  const response = await fetch("/api/match-resume", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to match resume for suggestions.");
+  }
+  const data = await response.json();
+  if (Array.isArray(data.suggestions)) {
+    return { suggestions: data.suggestions };
+  }
+  // fallback: wrap as array if single string
+  if (typeof data.suggestions === "string") {
+    return { suggestions: [data.suggestions] };
+  }
+  return { suggestions: [] };
+}
+
+/**
  * Generate a cover letter by sending data to the backend API.
  * @param payload Object with necessary data for cover letter generation.
  * @returns Promise resolving to an object with the cover letter (snake_case property).
@@ -65,154 +180,6 @@ export async function generateCoverLetter(payload: Record<string, unknown>): Pro
   return { cover_letter: "" };
 }
 
-/**
- * Fetches all job applications from the backend API.
- * @returns Promise resolving to an array of application objects.
- */
-// PUBLIC_INTERFACE
-export async function fetchApplications(): Promise<any[]> {
-  const response = await fetch("/api/applications");
-  if (!response.ok) throw new Error("Failed to fetch applications");
-  return response.json();
-}
-
-/**
- * Creates a new job application via backend API.
- * @param application The application object to create.
- * @returns Promise resolving to created application object.
- */
-// PUBLIC_INTERFACE
-export async function createApplication(application: Record<string, unknown>): Promise<any> {
-  const response = await fetch("/api/applications", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(application),
-  });
-  if (!response.ok) throw new Error("Failed to create application");
-  return response.json();
-}
-
-/**
- * Updates an existing job application via backend API.
- * @param id Application ID.
- * @param updates Update fields as an object.
- * @returns Promise resolving to the updated application object.
- */
-// PUBLIC_INTERFACE
-export async function updateApplication(id: string, updates: Record<string, unknown>): Promise<any> {
-  const response = await fetch(`/api/applications/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(updates),
-  });
-  if (!response.ok) throw new Error("Failed to update application");
-  return response.json();
-}
-
-/**
- * Deletes a job application via backend API.
- * @param id Application ID.
- * @returns Promise resolving to deletion confirmation.
- */
-// PUBLIC_INTERFACE
-export async function deleteApplication(id: string): Promise<{ success: boolean }> {
-  const response = await fetch(`/api/applications/${id}`, {
-    method: "DELETE",
-  });
-  if (!response.ok) throw new Error("Failed to delete application");
-  return response.json();
-}
-
 // Add new API utility functions below as needed
 
-// (If you had code past this point, it may have contained a parsing error.)
-// Please ensure new utility functions are valid TypeScript and properly exported.
-
-/**
- * Generate a cover letter by sending data to the backend API.
- * @param payload Object with necessary data for cover letter generation.
- * @returns Promise resolving to an object with the cover letter (snake_case property).
- */
-// PUBLIC_INTERFACE
-export async function generateCoverLetter(payload: Record<string, unknown>): Promise<{ cover_letter: string }> {
-  const response = await fetch("/api/generate-cover-letter", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  if (!response.ok) {
-    throw new Error("Failed to generate cover letter");
-  }
-  const data = await response.json();
-  // Ensure we always return an object with cover_letter property
-  if (typeof data.cover_letter === "string") {
-    return { cover_letter: data.cover_letter };
-  } else if (typeof data.coverLetter === "string") {
-    // fallback to camelCase if backend changed
-    return { cover_letter: data.coverLetter };
-  }
-  return { cover_letter: "" };
-}
-
-/**
- * Fetches all job applications from the backend API.
- * @returns Promise resolving to an array of application objects.
- */
-// PUBLIC_INTERFACE
-export async function fetchApplications(): Promise<any[]> {
-  const response = await fetch("/api/applications");
-  if (!response.ok) throw new Error("Failed to fetch applications");
-  return response.json();
-}
-
-/**
- * Creates a new job application via backend API.
- * @param application The application object to create.
- * @returns Promise resolving to created application object.
- */
-// PUBLIC_INTERFACE
-export async function createApplication(application: Record<string, unknown>): Promise<any> {
-  const response = await fetch("/api/applications", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(application),
-  });
-  if (!response.ok) throw new Error("Failed to create application");
-  return response.json();
-}
-
-/**
- * Updates an existing job application via backend API.
- * @param id Application ID.
- * @param updates Update fields as an object.
- * @returns Promise resolving to the updated application object.
- */
-// PUBLIC_INTERFACE
-export async function updateApplication(id: string, updates: Record<string, unknown>): Promise<any> {
-  const response = await fetch(`/api/applications/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(updates),
-  });
-  if (!response.ok) throw new Error("Failed to update application");
-  return response.json();
-}
-
-/**
- * Deletes a job application via backend API.
- * @param id Application ID.
- * @returns Promise resolving to deletion confirmation.
- */
-// PUBLIC_INTERFACE
-export async function deleteApplication(id: string): Promise<{ success: boolean }> {
-  const response = await fetch(`/api/applications/${id}`, {
-    method: "DELETE",
-  });
-  if (!response.ok) throw new Error("Failed to delete application");
-  return response.json();
-}
-
-// Add new API utility functions below as needed
-
-// (If you had code past this point, it may have contained a parsing error.)
 // Please ensure new utility functions are valid TypeScript and properly exported.

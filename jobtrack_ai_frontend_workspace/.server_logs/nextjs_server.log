@@ -4,11 +4,140 @@
 
  ⨯ Failed to start server
 Error: listen EADDRINUSE: address already in use 0.0.0.0:3000
-    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {
-  code: 'EADDRINUSE',
-  errno: -98,
-  syscall: 'listen',
-  address: '0.0.0.0',
-  port: 3000
+    at <unknown> (Error: listen EADDRINUSE: address ○ Compiling / ...
+ ✓ Compiled /_not-found in 5.2s (730 modules)
+ GET /preview.html 404 in 3018ms
+ GET / 200 in 103ms
+ ⚠ Blocked cross-origin request from vscode-internal-8505-beta.beta01.cloud.kavia.ai. To allow this, configure "allowedDevOrigins" in next.config
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+ GET / 200 in 36ms
+ ✓ Compiled /favicon.ico in 177ms (412 modules)
+ GET /favicon.ico 200 in 212ms
+ GET /preview.html 404 in 98ms
+ GET / 200 in 74ms
+ ⨯ ./src/app/page.tsx
+'client-only' cannot be imported from a Server Component module. It should only be used from a Client Component.
+
+The error was caused by using 'styled-jsx' in './src/app/page.tsx'. It only works in a Client Component but none of its parents are marked with "use client", so they're Server Components by default.
+
+Import trace for requested module:
+  ./src/app/page.tsx
+ ○ Compiling /_error ...
+ ⨯ ./src/app/page.tsx
+'client-only' cannot be imported from a Server Component module. It should only be used from a Client Component.
+
+The error was caused by using 'styled-jsx' in './src/app/page.tsx'. It only works in a Client Component but none of its parents are marked with "use client", so they're Server Components by default.
+
+Import trace for requested module:
+  ./src/app/page.tsx
+ GET / 500 in 5001ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'
 }
-[?25h
+[Error: ENOENT: no such file or directory, open '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'
+}
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+[Error: ENOENT: no such file or directory, open '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'
+}
+ GET / 500 in 817ms
+ GET / 500 in 242ms
+[Error: ENOENT: no such file or directory, open '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'
+}
+ GET / 500 in 731ms
+ GET / 500 in 228ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/home/kavia/workspace/code-generation/jobtrack-ai-226-a5059a15/jobtrack_ai_frontend_workspace/jobtrack_ai_frontend/.next/fallback-build-manifest.json'
+}
+ GET / 500 in 698ms
+ GET / 500 in 226ms
+ ✓ Compiled /_not-found in 279ms (1077 modules)
+ ✓ Compiled in 224ms (566 modules)
+ ✓ Compiled in 137ms (566 modules)
+ ✓ Compiled in 203ms (566 modules)
+ ✓ Compiled in 269ms (566 modules)
+ ✓ Compiled in 160ms (566 modules)
+ ✓ Compiled in 183ms (562 modules)
